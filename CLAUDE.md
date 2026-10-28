@@ -1,0 +1,1 @@
+Read `AGENTS.md` before doing anything in this repo. It has the rules (never commit source materials; each exam's facts come only from its own `materials/`; never change a shipped `storageKey`; commits are authored by the repo owner with no AI attribution lines) and the step-by-step workflow for building a new practice exam.

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study tool</title>
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --ink:#1c1d21; --muted:#6b6e76; --line:#e3e1da;
+  --accent:#3b5bdb; --accent-soft:#e7ecff; --good:#2b8a3e; --good-soft:#e3f5e7; --bad:#c92a2a; --bad-soft:#fdecec;
+  --warn:#b7791f; --warn-soft:#fff4e0; --fig-bg:#ffffff; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15161a; --panel:#1e2026; --ink:#e9e9ec; --muted:#9a9ca5; --line:#30333b;
+    --accent:#7c93ff; --accent-soft:#252c4a; --good:#5cc27a; --good-soft:#1c3324; --bad:#ff6b6b; --bad-soft:#3a1f22;
+    --warn:#f0b35a; --warn-soft:#3a2e1a; --fig-bg:#f4f4f2; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15161a; --panel:#1e2026; --ink:#e9e9ec; --muted:#9a9ca5; --line:#30333b;
+  --accent:#7c93ff; --accent-soft:#252c4a; --good:#5cc27a; --good-soft:#1c3324; --bad:#ff6b6b; --bad-soft:#3a1f22;
+  --warn:#f0b35a; --warn-soft:#3a2e1a; --fig-bg:#f4f4f2; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1140px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:-.01em;margin-right:auto;cursor:pointer}
+.brand small{font-weight:500;color:var(--muted);margin-left:6px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{border:0;background:transparent;padding:5px 8px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:550;font-size:14px}
+nav button.on{background:var(--accent-soft);color:var(--accent)}
+nav button:hover{color:var(--ink)}
+.iconbtn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 9px;cursor:pointer}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:26px;letter-spacing:-.02em;margin:4px 0 6px}
+h2{font-size:19px;margin:22px 0 10px;letter-spacing:-.01em}
+h3{font-size:16px;margin:14px 0 6px}
+p{margin:6px 0}
+ul,ol{margin:6px 0;padding-left:20px}
+code{font-size:13px;background:var(--accent-soft);padding:1px 5px;border-radius:5px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.tile{cursor:pointer;transition:transform .08s}
+.tile:hover{transform:translateY(-1px);border-color:var(--accent)}
+.tile h3{margin-top:0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:6px 12px;cursor:pointer;color:var(--muted);font-weight:550}
+.seg button.on{background:var(--accent);color:#fff}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:650;background:var(--accent-soft);color:var(--accent)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress > div{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+input[type=text],select{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 12px;width:100%}
+input[type=text]:focus{outline:2px solid var(--accent);border-color:transparent}
+label.chk{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font-size:14px}
+.fb{margin-top:10px;padding:10px 12px;border-radius:10px}
+.fb.good{background:var(--good-soft);color:var(--good)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb .detail{color:var(--ink);margin-top:4px}
+kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:12px;background:var(--panel)}
+.choices{display:grid;gap:8px}
+.choice{text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 12px;cursor:pointer}
+.choice:hover{border-color:var(--accent)}
+.choice.good{background:var(--good-soft);border-color:var(--good)}
+.choice.bad{background:var(--bad-soft);border-color:var(--bad)}
+.choice.picked{border-color:var(--accent);background:var(--accent-soft)}
+.choice.dim{opacity:.55}
+.onotes{display:grid;gap:6px;margin-top:10px}
+.onote{border:1px solid var(--line);border-left-width:4px;border-radius:8px;padding:7px 10px;font-size:14px;line-height:1.45;background:var(--panel)}
+.onote.good{border-left-color:var(--good);background:var(--good-soft)}
+.onote.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+.onote .ol{font-weight:600}
+.onote .tg{font-size:12px;font-weight:700;margin-right:6px;white-space:nowrap}
+.onote.good .tg{color:var(--good)}
+.onote.bad .tg{color:var(--bad)}
+.onote .on{color:var(--ink);margin-top:2px}
+.abbr{margin-top:8px;font-size:12.5px;color:var(--muted);line-height:1.5}
+details.why{margin-top:6px}
+details.why > summary{cursor:pointer;color:var(--muted);font-size:13px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:top}
+.tbl td{overflow-wrap:anywhere}
+.tbl th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.tbl tr.click{cursor:pointer}
+.tbl tr.click:hover td{background:var(--accent-soft)}
+.scroll{overflow-x:auto}
+.card{min-height:230px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;padding:28px;font-size:18px}
+.card .front{font-size:21px;font-weight:700;letter-spacing:-.01em}
+.card .back{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);max-width:700px;line-height:1.55;font-size:16px}
+.sample{font-size:15.5px;line-height:1.6;padding:14px 16px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:8px}
+.search{max-width:360px;flex:1;min-width:0;width:auto!important}
+mark{background:#ffe066;color:#000;border-radius:3px}
+.footer{margin-top:40px;color:var(--muted);font-size:12.5px;text-align:center}
+.stat{font-size:28px;font-weight:750;letter-spacing:-.02em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:5px 11px;cursor:pointer;font-weight:600;font-size:13.5px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+/* Image-based tools: put the image in .figwrap and overlay an <svg> with the same viewBox as the image's pixel size. */
+.figwrap{position:relative;background:var(--fig-bg);border-radius:12px;border:1px solid var(--line);overflow:hidden;max-width:720px;width:100%;margin:0 auto}
+.figwrap img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+.figwrap svg{position:absolute;inset:0;width:100%;height:100%}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+@media (max-width:640px){header{position:static} nav{flex-wrap:nowrap;overflow-x:auto;width:100%;order:3} nav button{white-space:nowrap} .card{padding:18px} .card .front{font-size:18px}}
+@media print{header,.noprint{display:none!important} .panel{box-shadow:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand" id="brand" onclick="go('home')"></div>
+    <nav id="nav"></nav>
+    <button class="iconbtn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
+  </div>
+</header>
+<main id="main"></main>
+
+<script>
+/*__CONTENT__*/
+</script>
+<script>
+// =====================================================================
+// Generic study app. Everything subject-specific lives in content.js.
+// The built-in tools turn on when content.js defines their data:
+//   Flashcards  ← CARDS        Quiz, Mock Exam ← QUIZ (+ SECTIONS)
+//   Evidence    ← STUDIES (+ CLAIMS for the claim → evidence mode)
+//   Study Guide ← always (searches CARDS and STUDIES)
+// Add exam-specific tools in the "EXAM-SPECIFIC TOOLS" block near the end.
+// If an image is embedded, declare it like:
+//   const IMG_FIG = "data:image/jpeg;base64,/*__IMG_FIG__*/";
+// and add a matching "replacements" entry in exam.json.
+// =====================================================================
+
+// Optional collections default to empty so the tools can test for them.
+const _def = (name, fallback) => { try { return eval(name); } catch (e) { return fallback; } };
+const D_CARDS = _def("CARDS", []), D_QUIZ = _def("QUIZ", []), D_STUDIES = _def("STUDIES", []);
+const D_CLAIMS = _def("CLAIMS", {}), D_SECTIONS = _def("SECTIONS", {}), D_HINTS = _def("HINTS", []);
+const D_ABBR = _def("ABBR", {}), D_EX_PLAN = _def("EX_PLAN", {}), D_CHAPTERS = _def("CHAPTERS", {});
+const D_QUIZ_TYPES = _def("QUIZ_TYPES", null);
+const UNIT = EXAM.unitLabel || "Ch";
+
+// ---------------- storage ----------------
+const KEY = EXAM.storageKey;
+let S = { theme: null, cards: {}, quiz: {}, ev: {}, claim: {} };
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+// rec(bucket, id, ok): right/wrong counts per item, saved under this exam's storageKey.
+function rec(bucket, id, ok){
+  S[bucket] = S[bucket] || {};
+  const r = S[bucket][id] || { c: 0, w: 0 };
+  ok ? r.c++ : r.w++; r.t = Date.now(); r.last = ok ? 1 : 0;
+  S[bucket][id] = r; save();
+}
+
+// ---------------- theme ----------------
+function applyTheme(){ if (S.theme) document.documentElement.setAttribute("data-theme", S.theme); else document.documentElement.removeAttribute("data-theme"); }
+applyTheme();
+document.getElementById("themeBtn").onclick = () => {
+  const dark = S.theme ? S.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  S.theme = dark ? "light" : "dark"; save(); applyTheme();
+};
+
+// ---------------- utils ----------------
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function weightedPick(items, wfn){ const ws = items.map(wfn); const tot = ws.reduce((a,b)=>a+b,0); let r = Math.random()*tot; for (let i=0;i<items.length;i++){ r -= ws[i]; if (r<=0) return items[i]; } return items[items.length-1]; }
+// Missed items come back more often.
+function wt(bucket, id){ const r = (S[bucket]||{})[id]; if (!r) return 3; return 1 + r.w*2/(1+r.c) + (r.last===0 ? 3 : 0); }
+const CH_LIST = Object.keys(D_CHAPTERS);
+const chName = c => D_CHAPTERS[c] || (UNIT + " " + c);
+const secCh = k => { const m = String(k).match(/^(.*?)[a-z]+$/); return m ? m[1] : String(k); };   // "15a" → "15"
+function chSeg(cur, fn, withAll=true){ const opts = (withAll?[["all","All"]]:[]).concat(CH_LIST.map(c=>[String(c), UNIT+" "+c])); return CH_LIST.length > 1 ? `<div class="seg">${opts.map(([k,l])=>`<button class="${cur===k?'on':''}" onclick="${fn}('${k}')">${l}</button>`).join("")}</div>` : ""; }
+function mcButtons(order, labels, picked, correct, onclickName){
+  return `<div class="choices">${order.map((k,idx) => { let c = ""; if (picked!==null && picked!==undefined){ if (k===correct) c="good"; else if (k===picked) c="bad"; else c="dim"; } return `<button class="choice ${c}" onclick="${onclickName}(${k})"><kbd>${idx+1}</kbd> ${esc(labels[k])}</button>`; }).join("")}</div>`;
+}
+// After an answer: every option with its own explanation.
+function optNotes(order, labels, notes, picked, correct){
+  if (!notes) return "";
+  return `<div class="onotes">${order.map(k => {
+    const c = k===correct ? "good" : (k===picked ? "bad" : "");
+    const tg = k===correct ? (k===picked ? "✓ Your answer" : "✓ Correct answer") : (k===picked ? "✗ Your answer" : "");
+    return `<div class="onote ${c}"><div>${tg?`<span class="tg">${tg}</span>`:""}<span class="ol">${esc(labels[k])}</span></div><div class="on">${esc(notes[k])}</div></div>`; }).join("")}</div>`;
+}
+// Spells out abbreviations (from ABBR) that appear in a question and its explanations.
+function abbrLine(texts){
+  const t = texts.filter(Boolean).join(" "), found = [];
+  for (const k of Object.keys(D_ABBR)){ const m = new RegExp("(^|[^A-Za-z0-9])" + k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + "s?(?![A-Za-z0-9])").exec(t); if (m) found.push([m.index, k, D_ABBR[k]]); }
+  found.sort((a,b)=>a[0]-b[0]);
+  return found.length ? `<div class="abbr">${found.map(f=>`<b>${esc(f[1])}</b> = ${esc(f[2])}`).join(" · ")}</div>` : "";
+}
+
+// ---------------- nav ----------------
+const VIEWS = [["home","Home"]];
+if (D_STUDIES.length) VIEWS.push(["evidence","Evidence"]);
+if (D_CARDS.length) VIEWS.push(["cards","Flashcards"]);
+if (D_QUIZ.length) VIEWS.push(["quiz","Quiz"], ["exam","Mock Exam"]);
+VIEWS.push(["guide","Study Guide"]);
+let current = "home";
+function renderNav(){ $("#nav").innerHTML = VIEWS.map(([k,l]) => `<button class="${k===current?'on':''}" onclick="go('${k}')">${l}</button>`).join(""); }
+function go(v){ current = v; renderNav(); window.scrollTo(0,0); try { history.replaceState(null,"","#"+v); } catch(e){} (R[v]||R.home)(); }
+const R = {};
+
+// ================= HOME =================
+R.home = function(){
+  const cardsKnown = Object.values(S.cards).filter(c => (c.box||0) >= 3).length;
+  const qR = Object.values(S.quiz).filter(r => r.last===1).length;
+  const evR = Object.values(S.ev).filter(r => r.last===1).length;
+  const empty = !D_CARDS.length && !D_QUIZ.length && !D_STUDIES.length;
+  $("#main").innerHTML = `<h1>${esc(EXAM.title)}</h1><p class="muted">${esc(EXAM.subtitle || "")}</p>
+    ${empty ? `<div class="panel" style="margin-top:14px"><h3 style="margin-top:0">No content yet</h3><p class="small">Fill <code>content.js</code> from this exam's <code>materials/</code> folder, then rebuild. Progress is stored in this browser under <code>${esc(EXAM.storageKey)}</code>.</p></div>` : `
+    <div class="grid g3" style="margin-top:14px">
+      ${D_CARDS.length ? `<div class="panel tile" onclick="go('cards')"><div class="muted small">Flashcards in box 3+</div><div class="stat">${cardsKnown}/${D_CARDS.length}</div></div>` : ""}
+      ${D_QUIZ.length ? `<div class="panel tile" onclick="go('quiz')"><div class="muted small">Quiz questions last answered right</div><div class="stat">${qR}/${D_QUIZ.length}</div></div>` : ""}
+      ${D_STUDIES.length ? `<div class="panel tile" onclick="go('evidence')"><div class="muted small">Study → implication, last try right</div><div class="stat">${evR}/${D_STUDIES.length}</div></div>` : ""}
+    </div>`}
+    ${D_HINTS.length ? `<h2>What the instructor said → where to practice</h2><div class="grid g2">${D_HINTS.map(h=>`<div class="panel tile" onclick="go('${esc(h.tool||"home")}')"><h3>${esc(h.t)}</h3><p class="muted small">${esc(h.how||"")}</p></div>`).join("")}</div>` : ""}
+    <div class="row" style="margin-top:18px"><span class="spacer"></span><button class="btn small" onclick="if(confirm('Reset all saved progress for this exam?')){S={theme:S.theme,cards:{},quiz:{},ev:{},claim:{}};save();go('home')}">Reset progress</button></div>
+    <div class="footer">Progress saves in this browser (${esc(EXAM.storageKey)}).</div>`;
+};
+
+// ================= EVIDENCE (STUDIES) =================
+// STUDIES item: { id, ch, claim, cite, desc, short, opts:[4], notes:[4], ans, why }
+let ev = { mode:"impl", ch:"all", hide:true, item:null, order:null, picked:null, sess:{c:0,w:0}, claimOpts:null };
+function evPool(){ return D_STUDIES.filter(s => ev.ch==="all" || String(s.ch)===ev.ch); }
+function evNext(){
+  if (ev.mode === "impl"){
+    const pool = evPool(); let s;
+    do { s = weightedPick(pool, x => wt("ev", x.id)); } while (pool.length>1 && ev.item && s.id===ev.item.id);
+    ev.item = s; ev.order = shuffle(s.opts.map((_,i)=>i));
+  } else {
+    const pool = evPool().filter(s => s.claim && D_CLAIMS[s.claim]); let s;
+    do { s = weightedPick(pool, x => wt("claim", x.id)); } while (pool.length>1 && ev.item && s.id===ev.item.id);
+    const others = D_STUDIES.filter(x => x.claim && D_CLAIMS[x.claim] && x.claim !== s.claim && D_CLAIMS[x.claim].model === D_CLAIMS[s.claim].model);
+    const fill = D_STUDIES.filter(x => x.claim && D_CLAIMS[x.claim] && x.claim !== s.claim);
+    let d = shuffle(others).slice(0,3); if (d.length < 3) d = d.concat(shuffle(fill.filter(x=>!d.includes(x))).slice(0, 3-d.length));
+    ev.item = s; ev.claimOpts = shuffle([s, ...d]);
+  }
+  ev.picked = null;
+}
+R.evidence = function(){
+  const hasClaims = D_STUDIES.some(s => s.claim && D_CLAIMS[s.claim]);
+  if (!hasClaims) ev.mode = "impl";
+  if (!ev.item || !evPool().includes(ev.item) || (ev.mode==="claim" && !ev.claimOpts)) evNext();
+  const s = ev.item;
+  let body;
+  if (ev.mode === "impl"){
+    body = `<div class="row"><span class="muted small">${esc(chName(s.ch))}</span>${(!ev.hide||ev.picked!==null)?`<span class="pill">${esc(s.cite)}</span>`:""}</div>
+      <div class="sample" style="margin-top:8px">${esc(s.desc)}</div><h3>What does this finding imply?</h3>
+      ${mcButtons(ev.order, s.opts, ev.picked, s.ans, "evPick")}
+      ${ev.picked!==null?`<div class="fb ${ev.picked===s.ans?'good':'bad'}"><b>${ev.picked===s.ans?"Correct":"Not quite"}</b>${s.claim&&D_CLAIMS[s.claim]?` — evidence that ${esc(D_CLAIMS[s.claim].text)}`:""}<div class="detail">${esc(s.why)}</div></div>${optNotes(ev.order, s.opts, s.notes, ev.picked, s.ans)}${abbrLine([s.desc, ...s.opts, ...(s.notes||[]), s.why])}
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="evNextBtn" onclick="evNext();R.evidence()">Next study →</button></div>`:""}`;
+  } else {
+    const c = D_CLAIMS[s.claim];
+    const labels = ev.claimOpts.map(x=>x.short); const correct = ev.claimOpts.indexOf(s);
+    body = `<div class="muted small">${esc(chName(s.ch))}${c.model?` · ${esc(c.model)}`:""}</div><h2 style="margin-top:6px">What is some evidence that ${esc(c.text)}?</h2>
+      ${mcButtons(ev.claimOpts.map((_,i)=>i), labels, ev.picked, correct, "evPick")}
+      ${ev.picked!==null?`<div class="fb ${ev.picked===correct?'good':'bad'}"><b>${ev.picked===correct?"Correct":"Answer: "+esc(s.short)}</b><div class="detail"><b>${esc(s.cite)}.</b> ${esc(s.why)}</div>${ev.picked!==correct?`<div class="detail small">You picked: ${esc(ev.claimOpts[ev.picked].cite)} — evidence that ${esc(D_CLAIMS[ev.claimOpts[ev.picked].claim].text)}.</div>`:""}</div>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="evNextBtn" onclick="evNext();R.evidence()">Next →</button></div>`:""}`;
+  }
+  $("#main").innerHTML = `<h1>Evidence</h1><p class="muted">Read a study, pick what it implies${hasClaims?" — or start from a claim and pick the study that supports it":""}.</p>
+    <div class="row" style="margin:12px 0">${hasClaims?`<div class="seg">${[["impl","Study → implication"],["claim","Claim → evidence"]].map(([k,l])=>`<button class="${ev.mode===k?'on':''}" onclick="ev.mode='${k}';ev.item=null;R.evidence()">${l}</button>`).join("")}</div>`:""}
+      ${chSeg(ev.ch,"evCh")}${ev.mode==="impl"?`<label class="chk"><input type="checkbox" ${ev.hide?"checked":""} onchange="ev.hide=this.checked;R.evidence()"> Hide study names until answered</label>`:""}
+      <span class="spacer"></span><span class="muted small">Session <b style="color:var(--good)">${ev.sess.c}</b>/<b>${ev.sess.c+ev.sess.w}</b></span></div>
+    <div class="panel">${body}</div>`;
+  const nb = $("#evNextBtn"); if (nb) nb.focus();
+};
+function evCh(k){ ev.ch = k; ev.item = null; R.evidence(); }
+function evPick(i){ if (ev.picked!==null) return; ev.picked = i; const s = ev.item;
+  const ok = ev.mode==="impl" ? i===s.ans : ev.claimOpts[i]===s;
+  rec(ev.mode==="impl"?"ev":"claim", s.id, ok); ok ? ev.sess.c++ : ev.sess.w++; R.evidence(); }
+
+// ================= FLASHCARDS =================
+// CARDS item: [chapter, front, back]
+let cf = { ch:"all", idx:null, flip:false, n:0 };
+function cPool(){ return D_CARDS.map((c,i)=>i).filter(i => (cf.ch==="all" || String(D_CARDS[i][0])===cf.ch)); }
+function cBox(i){ return (S.cards[i]||{}).box || 0; }
+function cNext(){ const pool = cPool(); cf.idx = weightedPick(pool, i => [8,5,3,1.5,.7,.3][cBox(i)] * (i===cf.idx ? 0.05 : 1)); cf.flip = false; }
+R.cards = function(){
+  if (cf.idx===null || !cPool().includes(cf.idx)) cNext();
+  const [ch, front, back] = D_CARDS[cf.idx];
+  const pool = cPool(); const boxes = [0,1,2,3,4,5].map(b => pool.filter(i=>cBox(i)===b).length);
+  $("#main").innerHTML = `<h1>Flashcards</h1><p class="muted">Spaced repetition: misses come back often. <kbd>Space</kbd> flip · <kbd>1</kbd> again · <kbd>2</kbd> good · <kbd>3</kbd> easy</p>
+    <div class="row" style="margin:12px 0">${chSeg(cf.ch,"cfCh")}
+      <span class="spacer"></span><span class="small muted">${boxes.map((n,b)=>`<span class="pill ${b>=3?'good':b===0?'':'warn'}" title="Box ${b}">${b===0?'new':b}: ${n}</span>`).join(" ")}</span></div>
+    <div class="panel card" onclick="cf.flip=!cf.flip;R.cards()">
+      <div class="muted small" style="margin-bottom:8px">${esc(chName(ch))}</div>
+      <div class="front">${esc(front)}</div>
+      ${cf.flip ? `<div class="back">${esc(back)}</div>` : `<div class="muted small" style="margin-top:16px">tap to flip</div>`}
+    </div>
+    <div class="row" style="justify-content:center;margin-top:12px">
+      ${cf.flip ? `<button class="btn bad" onclick="cRate(0)">Again</button><button class="btn" onclick="cRate(1)">Good</button><button class="btn good" onclick="cRate(2)">Easy</button>` : `<button class="btn primary" onclick="cf.flip=true;R.cards()">Show answer</button>`}
+    </div><p class="muted small" style="text-align:center">${cf.n} reviewed this session</p>`;
+};
+function cfCh(k){ cf.ch = k; cf.idx = null; R.cards(); }
+function cRate(r){ const c = S.cards[cf.idx] || {box:0}; c.box = r===0 ? 1 : Math.min(5, (c.box||0) + (r===2?2:1)); S.cards[cf.idx] = c; save(); cf.n++; cNext(); R.cards(); }
+
+// ================= QUIZ =================
+// QUIZ item: [chapter, question, options[4], answerIndex, takeaway, tag, section, notes[4]]
+const TYPE_LABELS = { summary:"Summary questions", fact:"Facts & studies", model:"Models & concepts", disorder:"Damage → deficit", calc:"Calculations", def:"Definitions" };
+const QTYPES = D_QUIZ_TYPES || [...new Set(D_QUIZ.map(q=>q[5]).filter(Boolean))].map(t=>[t, TYPE_LABELS[t]||t]);
+let qz = null;
+let qcfg = { ch:"all", sec:"all", type:"all", n:"20" };
+function secsFor(ch){ return Object.keys(D_SECTIONS).filter(k => ch==="all" || secCh(k)===ch); }
+function qPool(ch, sec, type){
+  return D_QUIZ.map((q,i)=>i).filter(i => (ch==="all" || String(D_QUIZ[i][0])===ch) && (sec==="all" || D_QUIZ[i][6]===sec) && (type==="all" || D_QUIZ[i][5]===type));
+}
+function qStart(ch, sec, type, n, onlyMissed){
+  let pool = qPool(ch, sec, type);
+  if (onlyMissed) pool = pool.filter(i => (S.quiz[i]||{}).last === 0);
+  pool = shuffle(pool).slice(0, n);
+  qz = { items: pool.map(i => ({ i, order: shuffle(D_QUIZ[i][2].map((_,k)=>k)), picked:null })), pos:0 };
+  R.quiz();
+}
+function qSet(k, v){ qcfg[k] = v; if (k==="ch") qcfg.sec = "all"; R.quiz(); }
+R.quiz = function(){
+  if (!qz){
+    const c = qcfg;
+    const pool = qPool(c.ch, c.sec, c.type);
+    const missed = pool.filter(i=>(S.quiz[i]||{}).last===0).length;
+    const secRows = secsFor(c.ch).map(k => {
+      const ids = D_QUIZ.map((q,i)=>i).filter(i=>D_QUIZ[i][6]===k);
+      const tried = ids.filter(i=>S.quiz[i]).length, right = ids.filter(i=>(S.quiz[i]||{}).last===1).length;
+      const pct = tried ? Math.round(right/tried*100) : null;
+      return `<tr><td class="muted" style="width:40px">${esc(k)}</td><td>${esc(D_SECTIONS[k])}</td><td style="width:44px">${ids.length}</td><td style="width:130px"><div class="progress"><div style="width:${ids.length?tried/ids.length*100:0}%"></div></div><span class="small muted">${tried}/${ids.length} tried${pct!==null?` · <b style="color:${pct>=80?'var(--good)':pct>=60?'var(--warn)':'var(--bad)'}">${pct}%</b>`:""}</span></td><td style="width:70px"><button class="btn small" ${ids.length?"":"disabled"} onclick="qStart('${secCh(k)}','${k}','all',999,false)">Drill</button></td></tr>`; }).join("");
+    $("#main").innerHTML = `<h1>Quiz</h1><p class="muted">${D_QUIZ.length} multiple-choice questions${Object.keys(D_SECTIONS).length?` across ${Object.keys(D_SECTIONS).length} sections`:""}. After you answer, every option gets its own explanation.</p>
+      <div class="panel"><div class="grid g2">
+        ${CH_LIST.length>1?`<div><label class="small muted">${esc(UNIT)}</label><select onchange="qSet('ch',this.value)">${[["all","All"],...CH_LIST.map(ch=>[String(ch),chName(ch)])].map(([v,l])=>`<option value="${v}" ${c.ch===v?"selected":""}>${esc(l)}</option>`).join("")}</select></div>`:""}
+        ${Object.keys(D_SECTIONS).length?`<div><label class="small muted">Section</label><select onchange="qSet('sec',this.value)"><option value="all">All sections</option>${secsFor(c.ch).map(k=>`<option value="${k}" ${c.sec===k?"selected":""}>${esc(k)} · ${esc(D_SECTIONS[k])}</option>`).join("")}</select></div>`:""}
+        ${QTYPES.length>1?`<div><label class="small muted">Type</label><select onchange="qSet('type',this.value)">${[["all","Everything"],...QTYPES].map(([v,l])=>`<option value="${v}" ${c.type===v?"selected":""}>${esc(l)}</option>`).join("")}</select></div>`:""}
+        <div><label class="small muted">Questions</label><select onchange="qSet('n',this.value)">${["10","20","40","80","999"].map(v=>`<option value="${v}" ${c.n===v?"selected":""}>${v==="999"?"All":v}</option>`).join("")}</select></div>
+      </div>
+      <div class="row" style="margin-top:12px"><button class="btn primary" ${pool.length?"":"disabled"} onclick="qStart(qcfg.ch,qcfg.sec,qcfg.type,+qcfg.n,false)">Start (${Math.min(pool.length,+c.n)} of ${pool.length})</button>
+      <button class="btn" ${missed?"":"disabled"} onclick="qStart(qcfg.ch,qcfg.sec,qcfg.type,999,true)">Retry ${missed} missed</button></div></div>
+      ${secRows?`<h2>Coverage by section</h2><div class="panel scroll"><table class="tbl small"><thead><tr><th></th><th>Section</th><th>Qs</th><th>Your progress</th><th></th></tr></thead><tbody>${secRows}</tbody></table></div>`:""}`;
+    return;
+  }
+  if (!qz.items.length){ $("#main").innerHTML = `<h1>Quiz</h1><div class="panel">No questions match that filter. <button class="btn" onclick="qz=null;R.quiz()">Back</button></div>`; return; }
+  if (qz.pos >= qz.items.length){
+    const right = qz.items.filter(it => it.picked === D_QUIZ[it.i][3]).length;
+    $("#main").innerHTML = `<h1>Quiz results</h1><div class="panel"><div class="stat">${right}/${qz.items.length}</div><div class="progress" style="margin:8px 0"><div style="width:${right/qz.items.length*100}%"></div></div>
+      <h3>Review</h3>${qz.items.map(it => { const q = D_QUIZ[it.i], ok = it.picked===q[3]; return `<div style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="pill ${ok?'good':'bad'}">${ok?"✓":"✗"}</span> <span class="muted small">${esc(q[6]||"")}</span> ${esc(q[1])}<div class="small">${ok||it.picked===null?"":`<span style="color:var(--bad)">You: ${esc(q[2][it.picked])}</span> · `}<span style="color:var(--good)">Answer: ${esc(q[2][q[3]])}</span> — <span class="muted">${esc(q[4])}</span></div>${!ok && it.picked!==null && q[7] ? `<div class="small muted" style="margin-top:2px">Why not "${esc(q[2][it.picked])}": ${esc(q[7][it.picked])}</div>` : ""}</div>`; }).join("")}
+      <div class="row" style="margin-top:12px"><button class="btn primary" onclick="qz=null;R.quiz()">New quiz</button></div></div>`;
+    return;
+  }
+  const it = qz.items[qz.pos], q = D_QUIZ[it.i];
+  $("#main").innerHTML = `<h1>Quiz</h1>
+    <div class="row"><span class="muted small">${esc(chName(q[0]))}${q[6]?` · ${esc(D_SECTIONS[q[6]]||q[6])}`:""}${q[5]==="summary"?' · <span class="pill">summary</span>':""}</span><span class="spacer"></span><span class="muted small">${qz.pos+1} / ${qz.items.length}</span></div>
+    <div class="progress" style="margin:6px 0 14px"><div style="width:${qz.pos/qz.items.length*100}%"></div></div>
+    <div class="panel"><h2 style="margin-top:0">${esc(q[1])}</h2>
+      ${mcButtons(it.order, q[2], it.picked, q[3], "qPick")}
+      ${it.picked!==null ? `<div class="fb ${it.picked===q[3]?'good':'bad'}"><b>${it.picked===q[3]?"Correct":"Incorrect"}</b><div class="detail">${esc(q[4])}</div></div>${optNotes(it.order, q[2], q[7], it.picked, q[3])}${abbrLine([q[1], ...q[2], ...(q[7]||[]), q[4]])}<div class="row" style="margin-top:10px"><button class="btn primary" id="qNext" onclick="qz.pos++;R.quiz()">Next →</button></div>` : ""}
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn small" onclick="qz.pos=qz.items.length;R.quiz()">End & see results</button></div>`;
+  const nb = $("#qNext"); if (nb) nb.focus();
+};
+function qPick(k){ const it = qz.items[qz.pos]; if (it.picked!==null) return; it.picked = k; rec("quiz", it.i, k===D_QUIZ[it.i][3]); R.quiz(); }
+
+// ================= MOCK EXAM =================
+// Per chapter: EX_PLAN[ch] = { st: studies, mc: multiple choice, su: summary questions }. Defaults below.
+let ex = null;
+function exPlan(ch){ return Object.assign({ st: Math.min(4, D_STUDIES.filter(s=>String(s.ch)===String(ch)).length), mc: 10, su: 3 }, D_EX_PLAN[ch] || {}); }
+function stratPick(ids, n){ // round-robin across sections so every part of the chapter gets sampled
+  const by = {}; shuffle(ids).forEach(i => { const k = D_QUIZ[i][6] || "_"; (by[k] = by[k] || []).push(i); });
+  const keys = shuffle(Object.keys(by)); const out = [];
+  while (out.length < n && keys.some(k => by[k].length)) for (const k of keys){ if (out.length >= n) break; if (by[k].length) out.push(by[k].shift()); }
+  return out;
+}
+function exStart(){
+  const items = [];
+  const chs = CH_LIST.length ? CH_LIST : [...new Set(D_QUIZ.map(q=>String(q[0])))];
+  for (const ch of chs){
+    const P = exPlan(ch);
+    shuffle(D_STUDIES.filter(s=>String(s.ch)===String(ch))).slice(0,P.st).forEach(s => items.push({t:"st", ch:String(ch), s, order:shuffle(s.opts.map((_,i)=>i)), val:null}));
+    const mcs = D_QUIZ.map((q,i)=>i).filter(i=>String(D_QUIZ[i][0])===String(ch));
+    stratPick(mcs.filter(i=>D_QUIZ[i][5]!=="summary"), P.mc).forEach(i => items.push({t:"mc", ch:String(ch), i, order:shuffle(D_QUIZ[i][2].map((_,k)=>k)), val:null}));
+    stratPick(mcs.filter(i=>D_QUIZ[i][5]==="summary"), P.su).forEach(i => items.push({t:"su", ch:String(ch), i, order:shuffle(D_QUIZ[i][2].map((_,k)=>k)), val:null}));
+  }
+  ex = { chs: chs.map(String), items, graded:false, start:Date.now() };
+  R.exam();
+}
+function exOk(x){ return x.t==="st" ? x.val===x.s.ans : x.val===D_QUIZ[x.i][3]; }
+function exChoice(x, idx, labels, correct){
+  const G = ex.graded;
+  return `<div class="choices" style="margin-top:6px">${x.order.map(o => { let c = ""; if (G){ if (o===correct) c="good"; else if (o===x.val) c="bad"; else c="dim"; } else if (o===x.val) c="picked"; return `<button class="choice ${c}" ${G?"disabled":""} onclick="exSet(${idx},${o})">${esc(labels[o])}</button>`; }).join("")}</div>`;
+}
+function exWhy(x, labels, notes, correct, texts){
+  if (!notes) return "";
+  return `<details class="why" ${x.val===correct?"":"open"}><summary>Why each option</summary>${optNotes(x.order, labels, notes, x.val, correct)}${abbrLine(texts)}</details>`;
+}
+function exSet(idx, v){ ex.items[idx].val = v; const y = window.scrollY; R.exam(); window.scrollTo(0,y); }
+R.exam = function(){
+  if (!ex){ $("#main").innerHTML = `<h1>Mock Exam</h1><p class="muted">A section per ${esc(UNIT==="Ch"?"chapter":UNIT.toLowerCase())}: brief studies → implication (if the exam has them), multiple choice sampled across every section, then summary questions. Nothing is graded until you submit; then every option gets its explanation.</p><div class="panel"><button class="btn primary" onclick="exStart()">Start mock exam</button></div>`; return; }
+  const G = ex.graded;
+  const score = G ? ex.items.filter(exOk).length : 0, total = ex.items.length;
+  let html = "";
+  for (const ch of ex.chs){
+    let n = 0;
+    const its = ex.items.map((x,idx)=>({x,idx})).filter(o=>o.x.ch===ch);
+    if (!its.length) continue;
+    const sec = (type, title) => { const list = its.filter(o=>o.x.t===type); if (!list.length) return ""; return `<h3>${title}</h3>` + list.map(({x,idx}) => { n++;
+      if (type==="st") return `<div style="margin:12px 0"><b>${n}.</b> <span class="small">${esc(x.s.desc)}</span><div class="small muted" style="margin-top:2px">What does this imply?</div>${exChoice(x, idx, x.s.opts, x.s.ans)}${G?`<div class="small muted" style="margin-top:4px"><b>${esc(x.s.cite)}</b> — ${esc(x.s.why)}</div>${exWhy(x, x.s.opts, x.s.notes, x.s.ans, [x.s.desc, ...x.s.opts, ...(x.s.notes||[])])}`:""}</div>`;
+      const q = D_QUIZ[x.i]; return `<div style="margin:12px 0"><b>${n}. ${esc(q[1])}</b>${exChoice(x, idx, q[2], q[3])}${G?`<div class="small muted" style="margin-top:4px">${esc(q[4])}</div>${exWhy(x, q[2], q[7], q[3], [q[1], ...q[2], ...(q[7]||[])])}`:""}</div>`; }).join(""); };
+    const chScore = G ? its.filter(o=>exOk(o.x)).length : null;
+    html += `<h2>${esc(chName(ch))}${G?` <span class="pill ${chScore/its.length>=.8?'good':chScore/its.length>=.6?'warn':'bad'}">${chScore}/${its.length}</span>`:""}</h2><div class="panel">${sec("st","Studies → implications")}${sec("mc","Multiple choice")}${sec("su","Summary questions")}</div>`;
+  }
+  $("#main").innerHTML = `<h1>Mock Exam</h1>${G?`<div class="panel" style="margin-bottom:14px"><div class="stat">${score}/${total} · ${Math.round(score/Math.max(1,total)*100)}%</div><div class="muted small">${Math.max(1,Math.round((ex.end-ex.start)/60000))} min</div><div class="row" style="margin-top:8px"><button class="btn primary" onclick="exStart()">New mock exam</button></div></div>`:""}
+    ${html}${G?"":`<div class="row" style="margin-top:14px"><button class="btn primary" onclick="exGrade()">Submit & grade</button><span class="muted small">${ex.items.filter(x=>x.val!==null).length}/${total} answered</span></div>`}`;
+};
+function exGrade(){ ex.graded = true; ex.end = Date.now();
+  ex.items.forEach(x => { if (x.t==="st") rec("ev", x.s.id, exOk(x)); else if (x.val!==null) rec("quiz", x.i, exOk(x)); });
+  R.exam(); window.scrollTo(0,0); }
+
+// ================= STUDY GUIDE =================
+let gQuery = "";
+R.guide = function(){
+  const ql = gQuery.trim().toLowerCase();
+  const m = s => !ql || String(s).toLowerCase().includes(ql);
+  const hl = s => { const e = esc(s); if (!ql) return e; return e.replace(new RegExp(ql.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"), "gi"), x => `<mark>${x}</mark>`); };
+  const tbl = (head, rows) => rows ? `<div class="panel scroll"><table class="tbl small"><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="panel muted small">No matches.</div>`;
+  const chs = CH_LIST.length ? CH_LIST : [...new Set([...D_CARDS.map(c=>String(c[0])), ...D_STUDIES.map(s=>String(s.ch))])];
+  const stBy = ch => D_STUDIES.filter(s=>String(s.ch)===String(ch) && m(s.cite+s.desc+s.opts[s.ans]+s.why)).map(s=>`<tr><td style="width:28%"><b>${hl(s.cite)}</b></td><td>${hl(s.short||s.desc)}</td><td>${hl(s.opts[s.ans])}</td></tr>`).join("");
+  const cardsBy = ch => D_CARDS.filter(c=>String(c[0])===String(ch) && m(c[1]+" "+c[2])).map(c=>`<tr><td style="width:32%"><b>${hl(c[1])}</b></td><td>${hl(c[2])}</td></tr>`).join("");
+  const abbrT = Object.entries(D_ABBR).filter(([k,v])=>m(k+" "+v)).map(([k,v])=>`<tr><td style="width:20%"><b>${hl(k)}</b></td><td>${hl(v)}</td></tr>`).join("");
+  $("#main").innerHTML = `<h1>Study Guide</h1><p class="muted">Everything in one place. Search filters every section.</p>
+    <div class="row noprint" style="margin:10px 0"><input type="text" class="search" id="gq" placeholder="Search" value="${esc(gQuery)}"><button class="btn" onclick="window.print()">Print</button></div>
+    ${D_STUDIES.length ? chs.map(ch=>`<h2>Key studies — ${esc(chName(ch))}</h2>${tbl(["Study","Finding","Implication"], stBy(ch))}`).join("") : ""}
+    ${chs.map(ch=>`<h2>Terms — ${esc(chName(ch))}</h2>${tbl(["Term","Meaning"], cardsBy(ch))}`).join("")}
+    ${Object.keys(D_ABBR).length ? `<h2>Abbreviations</h2>${tbl(["Abbreviation","Meaning"], abbrT)}` : ""}`;
+  const g = $("#gq"); g.oninput = () => { gQuery = g.value; const pos = g.selectionStart; R.guide(); const g2 = $("#gq"); g2.focus(); g2.setSelectionRange(pos,pos); };
+};
+
+// ================= EXAM-SPECIFIC TOOLS =================
+// Add tools the materials support (a labeled-figure drill, a model explorer, a
+// lesion → deficit drill, a calculator...). For each one:
+//   1. Put its data in content.js.
+//   2. VIEWS.splice(1, 0, ["mytool", "My Tool"]);   // where it appears in the nav
+//   3. R.mytool = function(){ $("#main").innerHTML = `...`; };
+//   4. Record answers with rec("mytool", itemId, ok).
+// AGENTS.md (step 5) lists tool patterns that have worked: figure-label drills,
+// clickable model diagrams with a lesion mode, deficit ↔ damaged-part drills.
+
+// ---------------- keyboard ----------------
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  const num = /^[1-9]$/.test(e.key) ? +e.key - 1 : null;
+  if (current === "cards"){
+    if (e.key === " "){ e.preventDefault(); cf.flip = !cf.flip; R.cards(); }
+    else if (cf.flip && ["1","2","3"].includes(e.key)) cRate(+e.key - 1);
+  } else if (current === "quiz" && qz && qz.pos < qz.items.length){
+    const it = qz.items[qz.pos]; if (it.picked === null && num !== null && num < it.order.length) qPick(it.order[num]);
+  } else if (current === "evidence" && ev.item){
+    if (ev.picked === null && num !== null && num < 4) evPick(ev.mode==="impl" ? ev.order[num] : num);
+  }
+});
+
+// ---------------- boot ----------------
+document.title = EXAM.title;
+$("#brand").innerHTML = `${esc(EXAM.title)}${EXAM.course?`<small>${esc(EXAM.course)}</small>`:""}`;
+const start = (location.hash || "").slice(1);
+go(VIEWS.some(v => v[0] === start) ? start : "home");
+</script>
+</body>
+</html>

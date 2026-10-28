@@ -1,0 +1,11 @@
+{
+  "id": "__EXAM_ID__",
+  "course": "__COURSE__",
+  "title": "__TITLE__",
+  "description": "REPLACE ME: one line for the index page — what this exam covers.",
+  "storageKey": "__STORAGE_KEY__",
+  "app": "app.html",
+  "replacements": [
+    { "token": "/*__CONTENT__*/", "file": "content.js", "mode": "text" }
+  ]
+}

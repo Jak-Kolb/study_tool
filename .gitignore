@@ -1,0 +1,26 @@
+# ---------------------------------------------------------------
+# This repo publishes the framework only. Every exam lives in
+# exams/<id>/ on your own machine and is never committed:
+# source materials, question banks, figures and built pages.
+# ---------------------------------------------------------------
+exams/*
+!exams/README.md
+
+# The generated index of your local exams
+/index.html
+
+# Belt and braces: document formats are never committed anywhere.
+*.pdf
+*.ppt
+*.pptx
+*.key
+*.doc
+*.docx
+*.epub
+*.mobi
+
+# Local clutter
+.DS_Store
+Claude outputs/
+__pycache__/
+node_modules/
